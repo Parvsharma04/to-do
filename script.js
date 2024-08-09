@@ -4,7 +4,7 @@ let taskList = document.getElementById("task-list");
 
 btn.addEventListener("click", addTask);
 if (getData() !== null) renderTasks();
-else alert("Add Some Tasks");
+else console.log("Add Some Tasks");
 
 function addTask() {
   let taskInfo = {
@@ -22,9 +22,9 @@ function addTask() {
     data.push(taskInfo);
     setData(data);
   }
-  showTask(taskInfo);
-  taskInput.value = '';
-  window.location.reload();
+  console.log(taskInfo);
+  renderTasks();
+  taskInput.value = "";
 }
 
 let doneBtn = document.querySelectorAll(".status");
@@ -36,18 +36,19 @@ doneBtn.forEach((ele) => {
 function taskStateChange(e) {
   let data = getData();
   if (data === null) return;
-  let taskId = e.target.parentNode.classList[0];
-    let task = data.find(ele => ele.id == taskId);
+  let taskId = e.target.parentNode.parentNode.classList[0];
+  console.log(taskId);
+  let task = data.find((ele) => ele.id == taskId);
 
-    if (task) {
-        task.completed = !task.completed;
-        setData(data);
-        renderTasks();  // Re-render tasks to update the display
-    }
+  if (task) {
+    task.completed = !task.completed;
+    setData(data);
+    renderTasks();
+  }
 }
 
 function renderTasks() {
-  taskList.innerHTML = ''
+  taskList.innerHTML = "";
   let data = getData();
   if (data === null) return;
   console.log(data);
@@ -60,28 +61,35 @@ let deleteBtn = document.querySelectorAll(".delete");
 deleteBtn.forEach((ele) => {
   ele.addEventListener("click", deleteTask);
 });
-console.log(deleteBtn)
 
 function deleteTask(e) {
   let data = getData();
   if (data === null) return;
   for (let i = 0; i < data.length; i++)
-    if (data[i].id == e.target.parentNode.classList[0]) data.splice(i, 1);
+    if (data[i].id == e.target.parentNode.parentNode.classList[0])
+      data.splice(i, 1);
   let ID = 1;
   data.forEach((ele) => {
     ele.id = ID++;
   });
   setData(data);
-  renderTasks()
+  renderTasks();
 }
 
 function showTask(ele) {
-  let newTask = document.createElement("li");
+  let newTask = document.createElement("tr");
+
+  let TaskName = document.createElement("td");
   let Task = document.createElement("span");
+
+  let StateBtn = document.createElement("td");
   let taskDone = document.createElement("button");
+
+  let Del = document.createElement("td");
   let Delete = document.createElement("button");
+
   taskDone.innerText = ele.completed ? "Not Done" : "Done";
-  taskDone.setAttribute("class", `status ${ele.id}`);
+  taskDone.setAttribute("class", `status`);
   newTask.setAttribute("class", `${ele.id}`);
   Delete.setAttribute("class", "delete");
   Delete.innerText = "Delete";
@@ -89,19 +97,22 @@ function showTask(ele) {
     ? ele.name
     : `<s style="background-color:lightgreen; color: black;">${ele.name}</s>`;
 
-  newTask.append(Task);
-  newTask.append(taskDone);
-  newTask.append(Delete);
+  TaskName.append(Task);
+  StateBtn.append(taskDone);
+  Del.append(Delete);
+
+  newTask.append(TaskName);
+  newTask.append(StateBtn);
+  newTask.append(Del);
   taskList.append(newTask);
+  console.log(taskList);
 
   taskDone.addEventListener("click", taskStateChange);
   Delete.addEventListener("click", deleteTask);
 }
 
 function getData() {
-  if (localStorage.key(0) == "data")
-    return JSON.parse(localStorage.getItem("data"));
-  else return null;
+  return JSON.parse(localStorage.getItem("data")) || null;
 }
 
 function setData(data) {
